@@ -8,6 +8,8 @@
 
 /*jslint browser: true, sloppy: true, vars: true, plusplus: true, indent: 2 */
 
+/* Imaginary Landscape fork https://github.com/ImaginaryLandscape/ResponsiveSlides.js */
+
 (function ($, window, i) {
   $.fn.responsiveSlides = function (options) {
 
@@ -21,6 +23,9 @@
       "random": false,          // Boolean: Randomize the order of the slides, true or false
       "pause": false,           // Boolean: Pause on hover, true or false
       "pauseControls": true,    // Boolean: Pause when hovering controls, true or false
+      "playStop": true,         // Boolean: Controls for playing and stopping the slides
+      "stopText": "Stop",       // String: Text for the "stop" button
+      "playText": "Play",       // String: Text for the "play" button
       "prevText": "Previous",   // String: Text for the "previous" button
       "nextText": "Next",       // String: Text for the "next" button
       "maxwidth": "",           // Integer: Max-width of the slideshow, in pixels
@@ -60,6 +65,7 @@
 
         // Classes
         navClass = namespace + "_nav " + namespaceIdx + "_nav",
+        stopClass = namespace + "_stop",
         activeClass = namespace + "_here",
         visibleClass = namespaceIdx + "_on",
         slideClassPrefix = namespaceIdx + "_s",
@@ -307,9 +313,11 @@
 
         // Navigation
         if (settings.nav) {
-          var navMarkup =
-            "<a href='#' class='" + navClass + " prev'>" + settings.prevText + "</a>" +
-            "<a href='#' class='" + navClass + " next'>" + settings.nextText + "</a>";
+          var navMarkup = "<a href='#' title='" + settings.prevText + "'class='" + navClass + " prev'>" + settings.prevText + "</a>";
+          if(settings.playStop){
+            navMarkup += "<a href='#' title='" + settings.stopText + "'class='" + stopClass + "'>" + settings.stopText + "</a>";
+          }
+          navMarkup += "<a href='#' title='" + settings.nextText + "'class='" + navClass + " next'>" + settings.nextText + "</a>";
 
           // Inject navigation
           if (options.navContainer) {
@@ -319,7 +327,7 @@
           }
 
           var $trigger = $("." + namespaceIdx + "_nav"),
-            $prev = $trigger.filter(".prev");
+            $prev = $trigger.filter(".prev");          
 
           // Click event handler
           $trigger.bind("click", function (e) {
@@ -356,6 +364,19 @@
               restartCycle();
             }
           });
+
+          if(settings.playStop) {
+              $('.'+stopClass).bind('click', function (e) {
+                  e.preventDefault();
+                  if($(this).hasClass(namespace+'_play')){
+                      $(this).removeClass(namespace+'_play').html(settings.stopText).attr('title', settings.stopText);
+                      restartCycle();
+                  } else {
+                      $(this).addClass(namespace+'_play').html(settings.playText).attr('title', settings.playText);
+                      clearInterval(rotate);
+                  }
+              });
+          }
 
           // Pause when hovering navigation
           if (settings.pauseControls) {
